@@ -1,1 +1,44 @@
-package-lock.json
+# Dependencies (reinstalled fresh inside the container via npm install)
+node_modules
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Version control
+.git
+.gitignore
+
+# Environment / secrets - never bake these into an image
+.env
+.env.local
+.env.*.local
+
+# Build output (regenerated during build if needed)
+build
+dist
+
+# Docker files (no need to copy these into the image itself)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IDE / editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Test coverage
+coverage
+
+# Documentation (optional, but often unnecessary in the image)
+README.md
+docs

@@ -20,18 +20,20 @@ pipeline {
                 bat 'docker-compose build'
             }
         }
+
+
         stage('Login to Docker Hub') {
-            steps { withCredentials([ usernamePassword( 
-                credentialsId: 'jenkins-docker-first', 
-                usernameVariable: 'DOCKER_USERNAME', 
-                passwordVariable: 'DOCKER_PASSWORD' ) ]) { 
-                    script {
+            withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', 
+            passwordVariable: 'PassWord', usernameVariable: 'UserName')]) {
+                script {
                        // bat 'docker login -u prabodhanih -p %DOCKER_PASSWORD%'
-                       bat 'echo %DOCKER_PASSWORD%| docker login -u %DOCKER_USERNAME% --password-stdin'
+                        bat 'echo %PassWord%| docker login -u %UserName% --password-stdin'
                     }
-                 }
             }
+            
         }
+
+
         stage('Push Image') {
             steps {
                 bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"

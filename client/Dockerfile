@@ -1,14 +1,15 @@
-# Dockerfile for the client
 FROM node:20.14.0
+
+RUN apt-get update && apt-get install -y dumb-init && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package.json .
+COPY package*.json ./
+RUN npm install
 
 COPY . .
 
-RUN npm install
-
 EXPOSE 3000
 
-CMD ["npm","run" ,"start"]
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["npm", "run", "start"]
