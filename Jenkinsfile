@@ -48,8 +48,6 @@ pipeline {
             steps {
                  bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
                  bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
-                 bat "docker push %BACKEND_IMAGE%:latest"
-                 bat "docker push %FRONTEND_IMAGE%:latest"
             }
         }
     }
