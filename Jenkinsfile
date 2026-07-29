@@ -33,12 +33,8 @@ pipeline {
 
         stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'jenkins-docker-first',
-                    usernameVariable: 'UserName',
-                    passwordVariable: 'PassWord'
-                )]) {
-                    bat 'echo %PassWord%| docker login -u %UserName% --password-stdin'
+                withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    bat 'echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin'
                 }
             }
         }
