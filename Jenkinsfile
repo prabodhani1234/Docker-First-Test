@@ -15,12 +15,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Debug Workspace') {
-            steps {
-                bat 'dir'
-            }
-        }
         
         stage('Build Docker Image') {
             steps {  
@@ -30,7 +24,13 @@ pipeline {
             }
         }
 
-
+        stage('Tag Images') {
+            steps {
+                bat "docker tag %BACKEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker tag %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+            }
+        }
+        
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
@@ -42,8 +42,8 @@ pipeline {
 
         stage('Push Image') {
             steps {
-                bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                 bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
+                 bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
     }
