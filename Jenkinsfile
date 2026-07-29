@@ -15,6 +15,12 @@ pipeline {
                 }
             }
         }
+
+        stage('Debug Workspace') {
+            steps {
+                bat 'dir'
+            }
+        }
         
         stage('Build Docker Image') {
             steps {  
