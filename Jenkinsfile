@@ -15,12 +15,14 @@ pipeline {
             }
         }
         stage('Login to Docker Hub') {
-            steps {
-                withCredentials([string(credentialsId: 'docker-hub-pass', variable: 'test-dockerhubpass')]) {
+            steps { withCredentials([ usernamePassword( 
+                credentialsId: 'jenkins-docker-first', 
+                usernameVariable: 'DOCKER_USERNAME', 
+                passwordVariable: 'DOCKER_PASSWORD' ) ]) { 
                     script {
-                        bat "docker login -u prabodhanih -p %docker-hub-pass%"
+                        bat 'docker login -u prabodhanih -p %DOCKER_PASSWORD%'
                     }
-                }
+                 }
             }
         }
         stage('Push Image') {
