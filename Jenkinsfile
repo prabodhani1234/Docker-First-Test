@@ -17,12 +17,14 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {  
-                //  bat '''
-                //     set PATH=%PATH%;C:\\Program Files\\Docker\\Docker\\resources\\bin
-                //     docker --version
-                // '''
-                //bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
-                bat 'docker compose build'
+                 script {
+                     sh """
+                            docker build -t prabodhanih/backend:${env.BUILD_NUMBER} ./backend
+                            docker build -t prabodhanih/client:${env.BUILD_NUMBER} ./client
+                        """
+                }
+                //bat 'docker compose build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                //bat 'docker compose build'
             }
         }
 
