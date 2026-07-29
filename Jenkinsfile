@@ -4,7 +4,7 @@ pipeline {
     environment {
         BACKEND_IMAGE  = "prabodhanih/recat_project-backend"
         FRONTEND_IMAGE = "prabodhanih/recat_project-client"
-        COMPOSE_FILE = 'docker-compose.yaml'
+        COMPOSE_FILE = 'docker-compose.yml'
     }
 
     stages { 
