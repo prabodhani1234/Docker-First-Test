@@ -2,8 +2,8 @@ pipeline {
     agent any 
     
     environment {
-        BACKEND_IMAGE  = "first-jenkins-backend"
-        FRONTEND_IMAGE = "first-jenkins-client"
+        BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
+        FRONTEND_IMAGE = "prabodhanih/first-jenkins-client"
         COMPOSE_FILE = 'docker-compose.yml'
     }
 
@@ -30,8 +30,8 @@ pipeline {
         }
         stage('Tag Images') {
             steps {
-                bat "docker tag %BACKEND_IMAGE%:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                bat "docker tag %FRONTEND_IMAGE%:latest %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker tag first-jenkins-backend:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker tag first-jenkins-client:latest %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
         
