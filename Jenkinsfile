@@ -14,6 +14,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Build Docker Image') {
             steps {  
                 //bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'

@@ -9,6 +9,7 @@ services:
   
   backend:
     build: ./backend
+    image: prabodhanih/dockerfirst-backend:${BUILD_NUMBER:-latest}
     container_name: backend_container
     ports:
       - "5000:5000"
@@ -22,6 +23,7 @@ services:
 
   client:
     build: ./client
+    image: prabodhanih/dockerfirst-frontend:${BUILD_NUMBER:-latest}
     container_name: client_container
     ports:
       - "3000:3000"
