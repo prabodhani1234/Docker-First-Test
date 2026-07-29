@@ -17,15 +17,8 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {  
-                 script {
-                    dir('backend') {
-                        backendImage = docker.build("prabodhanih/backend:${env.BUILD_NUMBER}")
-                    }
-                    dir('client') {
-                        clientImage = docker.build("prabodhanih/client:${env.BUILD_NUMBER}")
-                    }
-                }
-                //bat 'docker compose build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                 
+                bat 'docker compose build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
                 //bat 'docker compose build'
             }
         }
