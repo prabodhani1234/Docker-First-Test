@@ -23,7 +23,11 @@ pipeline {
                 //bat 'docker compose build'
             }
         }
-
+        stage('Debug Images') {
+            steps {
+                bat 'docker images'
+            }
+        }
         stage('Tag Images') {
             steps {
                 bat "docker tag %BACKEND_IMAGE%:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
