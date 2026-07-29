@@ -2,8 +2,8 @@ pipeline {
     agent any 
     
     environment {
-        BACKEND_IMAGE  = "prabodhanih/recat_project-backend"
-        FRONTEND_IMAGE = "prabodhanih/recat_project-client"
+        BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
+        FRONTEND_IMAGE = "prabodhanih/first-jenkins-client"
         COMPOSE_FILE = 'docker-compose.yml'
     }
 
