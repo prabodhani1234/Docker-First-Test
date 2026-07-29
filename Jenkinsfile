@@ -4,6 +4,7 @@ pipeline {
     environment {
         BACKEND_IMAGE  = "prabodhanih/recat_project-backend"
         FRONTEND_IMAGE = "prabodhanih/recat_project-client"
+        COMPOSE_FILE = 'docker-compose.yaml'
     }
 
     stages { 
@@ -17,8 +18,8 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {  
-                 
-                bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                bat docker compose -f ${COMPOSE_FILE} build --pull
+                //bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
                 //bat 'docker compose build'
             }
         }
