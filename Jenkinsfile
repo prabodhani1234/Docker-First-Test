@@ -26,8 +26,8 @@ pipeline {
 
         stage('Tag Images') {
             steps {
-                bat "docker tag %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                bat "docker tag %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker tag %BACKEND_IMAGE%:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker tag %FRONTEND_IMAGE%:latest %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
         
@@ -44,6 +44,8 @@ pipeline {
             steps {
                  bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
                  bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                 bat "docker push %BACKEND_IMAGE%:latest"
+                 bat "docker push %FRONTEND_IMAGE%:latest"
             }
         }
     }
