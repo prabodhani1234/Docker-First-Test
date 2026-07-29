@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {  
                  
-                bat 'docker compose build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
                 //bat 'docker compose build'
             }
         }
