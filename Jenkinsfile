@@ -1,6 +1,11 @@
 pipeline {
     agent any 
     
+    environment {
+        BACKEND_IMAGE  = "prabodhanih/recat_project-backend"
+        FRONTEND_IMAGE = "prabodhanih/recat_project-client"
+    }
+
     stages { 
         stage('SCM Checkout') {
             steps {
@@ -11,7 +16,8 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {  
-                bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                //bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
+                bat 'docker-compose build'
             }
         }
         stage('Login to Docker Hub') {
@@ -20,14 +26,16 @@ pipeline {
                 usernameVariable: 'DOCKER_USERNAME', 
                 passwordVariable: 'DOCKER_PASSWORD' ) ]) { 
                     script {
-                        bat 'docker login -u prabodhanih -p %DOCKER_PASSWORD%'
+                       // bat 'docker login -u prabodhanih -p %DOCKER_PASSWORD%'
+                       bat 'echo %DOCKER_PASSWORD%| docker login -u %DOCKER_USERNAME% --password-stdin'
                     }
                  }
             }
         }
         stage('Push Image') {
             steps {
-                bat 'docker push prabodhanih/dockerfirst-app:%BUILD_NUMBER%'
+                bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
+                bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
     }
