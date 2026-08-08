@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="App">
       <div>
-        <h2>Users List L</h2>
+        <h2>Users List </h2>
         {users.length > 0 ? (
           <ul>
             {users.map((user) => (
