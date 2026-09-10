@@ -5,6 +5,16 @@ pipeline {
         BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
         FRONTEND_IMAGE = "prabodhanih/first-jenkins-client"
         COMPOSE_FILE = 'docker-compose.yml'
+
+        UBUNTU_HOST = "192.168.8.105"
+        UBUNTU_USER = "vboxuser"
+
+        // GitHub
+        //GIT_REPO = "https://github.com/dhani1234/Docker-First-Test"
+        //GIT_BRANCH = "master"
+
+        // Deployment directory on Ubuntu
+        DEPLOY_DIR = "/home/vboxuser/first-jenkins"
     }
 
     stages { 
@@ -23,11 +33,7 @@ pipeline {
                 //bat 'docker compose build'
             }
         }
-        stage('Debug Images') {
-            steps {
-                bat 'docker images'
-            }
-        }
+        
         stage('Tag Images') {
             steps {
                 bat "docker tag first-jenkins-backend:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
@@ -50,10 +56,75 @@ pipeline {
                  bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
+
+        stage('Prepare Ubuntu') {
+            steps {
+
+                bat """
+                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                """
+            }
+        }
+
+        stage('Copy Compose File') {
+            steps {
+
+                bat """
+                scp docker-compose.prod.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
+                """
+            }
+        }
+
+        stage('Deploy to Ubuntu') {
+            steps {
+
+                bat """
+                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && export IMAGE_TAG=%BUILD_NUMBER% && docker compose pull && docker compose up -d"
+                """
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+
+                bat """
+                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "docker ps"
+                """
+            }
+        }
+
+        // stage('Deploy to Ubuntu') {
+        //     steps {
+        //         bat """
+        //         ssh ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull ${BACKEND_IMAGE}:%BUILD_NUMBER% && docker pull ${FRONTEND_IMAGE}:%BUILD_NUMBER%"
+        //         """
+        //     }
+        // }
     }
     post {
         always {
             bat 'docker logout'
         }
+
+        success {
+
+            echo "========================================="
+            echo "Deployment Successful!"
+            echo "Build Number: ${BUILD_NUMBER}"
+            echo "Backend Image: ${BACKEND_IMAGE}:${BUILD_NUMBER}"
+            echo "Frontend Image: ${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+            echo "Ubuntu Server: ${UBUNTU_HOST}"
+            echo "========================================="
+        }
+
+        failure {
+
+            echo "========================================="
+            echo "Deployment Failed!"
+            echo "Check Jenkins console output."
+            echo "========================================="
+        }
     }
+
+
 }
