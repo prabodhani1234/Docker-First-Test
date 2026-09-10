@@ -57,14 +57,14 @@ pipeline {
             }
         }
 
-        stage('Prepare Ubuntu') {
-            steps {
+        //stage('Prepare Ubuntu') {
+            //steps {
 
-                bat """
-                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
-                """
-            }
-        }
+                //bat """
+                //ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                //"""
+            //}
+        //}
 
         stage('Copy Compose File') {
             steps {
