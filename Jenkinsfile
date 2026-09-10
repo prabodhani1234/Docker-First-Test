@@ -70,7 +70,7 @@ pipeline {
             steps {
 
                 bat """
-                scp docker-compose.prod.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
+                scp docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
                 """
             }
         }
