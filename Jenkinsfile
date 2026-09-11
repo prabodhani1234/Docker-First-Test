@@ -59,7 +59,7 @@ pipeline {
         
         stage('Prepare Ubuntu') {
             steps {
-                sshagent(['Ubuntu-jenkins']) {
+                sshagent(['ubuntu-ssh-key']) {
                     bat """
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
                     """
