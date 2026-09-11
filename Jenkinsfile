@@ -69,13 +69,7 @@ pipeline {
         
         stage('Copy Compose File') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'Ubuntu-jenkins',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
+               sshagent(['ubuntu-ssh-key']) {
                     bat """
                         scp -i "%SSH_KEY%" -o StrictHostKeyChecking=no docker-compose.yml %SSH_USER%@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
                     """
@@ -85,13 +79,7 @@ pipeline {
         
         stage('Deploy to Ubuntu') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'Ubuntu-jenkins',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
+               sshagent(['ubuntu-ssh-key']) {
                     bat """
                         ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SSH_USER%@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && export IMAGE_TAG=${BUILD_NUMBER} && docker compose pull && docker compose up -d"
                     """
@@ -101,13 +89,7 @@ pipeline {
         
         stage('Verify Deployment') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'Ubuntu-jenkins',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
+                sshagent(['ubuntu-ssh-key']) {
                     bat """
                         ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SSH_USER%@${UBUNTU_HOST} "docker ps"
                     """
