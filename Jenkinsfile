@@ -26,36 +26,36 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
-            steps {  
-                bat "docker-compose -f ${COMPOSE_FILE} build --pull"
+        //stage('Build Docker Image') {
+           // steps {  
+               // bat "docker-compose -f ${COMPOSE_FILE} build --pull"
                 //bat 'docker build -t prabodhanih/dockerfirst-app:%BUILD_NUMBER% .'
                 //bat 'docker compose build'
-            }
-        }
+           // }
+       // }
         
-        stage('Tag Images') {
-            steps {
-                bat "docker tag first-jenkins-backend:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                bat "docker tag first-jenkins-client:latest %FRONTEND_IMAGE%:%BUILD_NUMBER%"
-            }
-        }
+       // stage('Tag Images') {
+         //   steps {
+           //     bat "docker tag first-jenkins-backend:latest %BACKEND_IMAGE%:%BUILD_NUMBER%"
+            //    bat "docker tag first-jenkins-client:latest %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+           // }
+      //  }
         
-        stage('Login to Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                    bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%'
-                }
-            }
-        }
+       // stage('Login to Docker Hub') {
+           // steps {
+         //       withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+             //       bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%'
+               // }
+          //  }
+       // }
 
 
-        stage('Push Image') {
-            steps {
-                 bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                 bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
-            }
-        }
+      //  stage('Push Image') {
+        //    steps {
+         //        bat "docker push %BACKEND_IMAGE%:%BUILD_NUMBER%"
+          //       bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+           // }
+      //  }
         
         stage('Prepare Ubuntu') {
             steps {
