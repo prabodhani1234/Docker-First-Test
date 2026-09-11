@@ -56,43 +56,45 @@ pipeline {
                  bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
-
-        //stage('Prepare Ubuntu') {
-            //steps {
-
-                //bat """
-                //ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
-                //"""
-            //}
-        //}
-
-        stage('Copy Compose File') {
+        stage('Prepare Ubuntu') {
             steps {
-
-                bat """
-                scp docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
-                """
+                sshagent(['Ubuntu-jenkins']) {
+                    bat """
+                    ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                    """
+                }
             }
         }
 
+       stage('Copy Compose File') {
+            steps {
+                sshagent(['Ubuntu-jenkins']) {
+                    bat """
+                    scp -o StrictHostKeyChecking=no docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
+                    """
+                }
+            }
+        }
+        
         stage('Deploy to Ubuntu') {
             steps {
-
-                bat """
-                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && export IMAGE_TAG=%BUILD_NUMBER% && docker compose pull && docker compose up -d"
-                """
+                sshagent(['Ubuntu-jenkins']) {
+                    bat """
+                    ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && set IMAGE_TAG=%BUILD_NUMBER% && docker compose pull && docker compose up -d"
+                    """
+                }
             }
         }
-
+        
         stage('Verify Deployment') {
             steps {
-
-                bat """
-                ssh ${UBUNTU_USER}@${UBUNTU_HOST} "docker ps"
-                """
+                sshagent(['Ubuntu-jenkins']) {
+                    bat """
+                    ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker ps"
+                    """
+                }
             }
         }
-
         // stage('Deploy to Ubuntu') {
         //     steps {
         //         bat """
