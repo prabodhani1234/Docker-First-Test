@@ -59,15 +59,9 @@ pipeline {
         
         stage('Prepare Ubuntu') {
             steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'ubuntu-ssh-key',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
+                sshagent(['Ubuntu-jenkins']) {
                     bat """
-                        ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SSH_USER%@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
                     """
                 }
             }
