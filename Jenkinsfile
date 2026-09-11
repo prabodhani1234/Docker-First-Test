@@ -58,7 +58,14 @@ pipeline {
         }
         stage('Prepare Ubuntu') {
             steps {
-                sshagent(['Ubuntu-jenkins']) {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'Ubuntu-jenkins',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) 
+                {
                     bat """
                     ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
                     """
