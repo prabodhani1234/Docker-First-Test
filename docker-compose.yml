@@ -8,7 +8,7 @@ services:
       - "27017:27017"
   
   backend:
-    build: ./backend
+    build: ./backend:${IMAGE_TAG}
     container_name: backend_container
     ports:
       - "5000:5000"
@@ -21,7 +21,7 @@ services:
       - MONGODB_URI=mongodb://mongo:27017/UserDb
 
   client:
-    build: ./client
+    build: ./client:${IMAGE_TAG}
     container_name: client_container
     ports:
       - "3000:3000"
