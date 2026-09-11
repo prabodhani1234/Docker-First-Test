@@ -69,9 +69,9 @@ pipeline {
         
         stage('Copy Compose File') {
             steps {
-               sshagent(['ubuntu-ssh-key']) {
+                sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        scp -i "%SSH_KEY%" -o StrictHostKeyChecking=no docker-compose.yml %SSH_USER%@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
+                        scp -o StrictHostKeyChecking=no docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
                     """
                 }
             }
