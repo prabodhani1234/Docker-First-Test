@@ -79,9 +79,9 @@ pipeline {
         
         stage('Deploy to Ubuntu') {
             steps {
-               sshagent(['ubuntu-ssh-key']) {
+                sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SSH_USER%@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && export IMAGE_TAG=${BUILD_NUMBER} && docker compose pull && docker compose up -d"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && export IMAGE_TAG=${BUILD_NUMBER} && docker compose pull && docker compose up -d"
                     """
                 }
             }
@@ -91,7 +91,7 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh -i "%SSH_KEY%" -o StrictHostKeyChecking=no %SSH_USER%@${UBUNTU_HOST} "docker ps"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker ps"
                     """
                 }
             }
