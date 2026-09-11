@@ -56,26 +56,32 @@ pipeline {
                  bat "docker push %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
         }
-        stage('Prepare Ubuntu') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'Ubuntu-jenkins',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) 
-                {
-                    bat """
-                    ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
-                    """
-                }
-            }
-        }
+        //stage('Prepare Ubuntu') {
+         //   steps {
+         //       withCredentials([
+           //         sshUserPrivateKey(
+           //             credentialsId: 'Ubuntu-jenkins',
+             //           keyFileVariable: 'SSH_KEY',
+               //         usernameVariable: 'SSH_USER'
+                 //   )
+                //]) 
+                //{
+                  //  bat """
+                    //ssh ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                   // """
+               // }
+           // }
+       // }
 
        stage('Copy Compose File') {
             steps {
-                sshagent(['Ubuntu-jenkins']) {
+                withCredentials([
+                        sshUserPrivateKey(
+                            credentialsId: 'Ubuntu-jenkins',
+                            keyFileVariable: 'SSH_KEY',
+                            usernameVariable: 'SSH_USER'
+                        )
+                    ])  {
                     bat """
                     scp -o StrictHostKeyChecking=no docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
                     """
