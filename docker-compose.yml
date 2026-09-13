@@ -8,7 +8,7 @@ services:
       - "27017:27017"
   
   backend:
-    build: ./backend
+    build:  ${BACKEND_IMAGE}:${IMAGE_TAG}
     container_name: backend_container
     ports:
       - "5000:5000"
@@ -16,23 +16,17 @@ services:
       - mongo
     environment:
       - MONGODB_URI=mongodb://mongo:27017/UserDb
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
     
 
   client:
-    build: ./client
+    build: ${FRONTEND_IMAGE}:${IMAGE_TAG}
     container_name: client_container
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./client:/app
-      - /app/node_modules
+    
+    
 
 volumes:
   mongo_data:
