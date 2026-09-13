@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors =require('cors');
 require("dotenv").config();
 const User = require("./User");
-
+console.log("MONGODB_URI:", process.env.MONGODB_URI);
 const app  =  express();
 app.use(express.json());
 app.use(cors());
