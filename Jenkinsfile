@@ -84,31 +84,11 @@ pipeline {
             }
         }
 
-        stage('Check Compose File') {
-            steps {
-                bat '''
-                    echo Current directory:
-                    cd
-
-                    echo Files:
-                    dir
-
-                    echo Checking compose file:
-                    if exist docker-compose.prod.yml (
-                        echo docker-compose.prod.yml FOUND
-                    ) else (
-                        echo docker-compose.prod.yml NOT FOUND
-                        exit /b 1
-                    )
-                '''
-            }
-        }
-
-        stage('Copy Compose File') {
+       stage('Copy Compose File') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.prod.yml
+                        scp -o StrictHostKeyChecking=no docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
                     """
                 }
             }
