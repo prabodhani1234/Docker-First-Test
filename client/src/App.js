@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
-
 function App() {
   const [users, setUsers] = useState([]);
 
@@ -24,7 +23,6 @@ function App() {
           <ul>
             {users.map((user) => (
               <li key={user._id}>
-                {user.name} - {user.age}
                 {user.name} - {user.age}
               </li>
             ))}
