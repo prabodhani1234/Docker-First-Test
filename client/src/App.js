@@ -6,7 +6,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/users")
+      .get("http://192.168.8.105:5000/api/users")
       .then((response) => {
         setUsers(response.data.data);
       })
