@@ -31,9 +31,7 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                bat '''
-                    bat "docker-compose -f ${COMPOSE_FILE} build --pull"
-                '''
+                bat "docker-compose -f ${COMPOSE_FILE} build --pull"
             }
         }
 
