@@ -25,14 +25,14 @@ pipeline {
         stage('Check Docker') {
             steps {
                 bat 'docker --version'
-                bat 'docker compose version'
+                bat 'docker-compose --version'
             }
         }
 
         stage('Build Docker Images') {
             steps {
                 bat '''
-                    docker compose -f %COMPOSE_FILE% build --pull
+                    bat "docker-compose -f ${COMPOSE_FILE} build --pull"
                 '''
             }
         }
