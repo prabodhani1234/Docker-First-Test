@@ -59,6 +59,12 @@ pipeline {
         }
 
         // new step for separately copy image to ubuntu side
+        stage('Pull Mongo Image') {
+            steps {
+                bat "docker pull mongo:latest"
+            }
+        }
+        
         stage('Save Images') {
             steps {
                 bat "docker save -o mongo.tar mongo:latest"
