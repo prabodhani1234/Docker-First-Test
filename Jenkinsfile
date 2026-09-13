@@ -2,14 +2,15 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
+         BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
         FRONTEND_IMAGE = "prabodhanih/first-jenkins-client"
+        
+        COMPOSE_FILE = 'docker-compose.yml'
 
-        COMPOSE_FILE = "docker-compose.yml"
+        UBUNTU_HOST = "192.168.8.105"
+        UBUNTU_USER = "vboxuser"
 
-        DOCKER_CREDENTIALS = "jenkins-docker-first"
-
-        WSL_DISTRO = "Ubuntu"
+        DEPLOY_DIR = "/home/vboxuser/first-jenkins"
     }
 
     stages {
@@ -73,54 +74,58 @@ pipeline {
             }
         }
 
-        stage('Prepare WSL') {
+        stage('Prepare Ubuntu') {
             steps {
-                bat '''
-                    wsl -d %WSL_DISTRO% -- bash -lc "mkdir -p /home/hmtpr/first-jenkins"
-                '''
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                    """
+                }
             }
         }
 
-        stage('Deploy to WSL') {
+        stage('Copy Compose File') {
             steps {
-
-                bat '''
-                    echo ========================================
-                    echo Deploying to WSL
-                    echo ========================================
-
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker --version"
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker compose version"
-
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker pull %BACKEND_IMAGE%:%BUILD_NUMBER%"
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker pull %FRONTEND_IMAGE%:%BUILD_NUMBER%"
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker pull mongo:latest"
-                '''
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.prod.yml
+                    """
+                }
             }
         }
 
-        stage('Run Application in WSL') {
+        stage('Deploy to Ubuntu') {
             steps {
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker --version"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker compose version"
 
-                bat '''
-                    echo ========================================
-                    echo Starting application in WSL
-                    echo ========================================
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull ${BACKEND_IMAGE}:${BUILD_NUMBER}"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull ${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull mongo:latest"
+                    """
+                }
+            }
+        }
 
-                    wsl -d %WSL_DISTRO% -- bash -lc "cd /mnt/c/ProgramData/Jenkins/.jenkins/workspace/first-jenkins && BACKEND_IMAGE=%BACKEND_IMAGE% FRONTEND_IMAGE=%FRONTEND_IMAGE% IMAGE_TAG=%BUILD_NUMBER% docker compose -f %COMPOSE_FILE% up -d"
-                '''
+        stage('Run Application in Ubuntu') {
+            steps {
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && BACKEND_IMAGE=${BACKEND_IMAGE} FRONTEND_IMAGE=${FRONTEND_IMAGE} IMAGE_TAG=${BUILD_NUMBER} docker compose -f docker-compose.prod.yml up -d"
+                    """
+                }
             }
         }
 
         stage('Check Containers') {
             steps {
-                bat '''
-                    echo ========================================
-                    echo Running Containers
-                    echo ========================================
-
-                    wsl -d %WSL_DISTRO% -- bash -lc "docker ps"
-                '''
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker ps"
+                    """
+                }
             }
         }
     }
@@ -129,8 +134,8 @@ pipeline {
 
         success {
             echo "Deployment completed successfully!"
-            echo "Frontend: http://localhost:5173"
-            echo "Backend:  http://localhost:5000"
+            echo "Frontend: http://${UBUNTU_HOST}:5173"
+            echo "Backend:  http://${UBUNTU_HOST}:5000"
         }
 
         failure {
