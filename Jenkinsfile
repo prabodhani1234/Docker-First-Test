@@ -76,7 +76,7 @@ pipeline {
         stage('Prepare WSL') {
             steps {
                 bat '''
-                    wsl -d %WSL_DISTRO% -- bash -lc "mkdir -p /home/%USERNAME%/first-jenkins"
+                    wsl -d %WSL_DISTRO% -- bash -lc "mkdir -p /home/hmtpr/first-jenkins"
                 '''
             }
         }
