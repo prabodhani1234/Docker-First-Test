@@ -113,7 +113,7 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && BACKEND_IMAGE=${BACKEND_IMAGE} FRONTEND_IMAGE=${FRONTEND_IMAGE} IMAGE_TAG=${BUILD_NUMBER} docker compose -f docker-compose.prod.yml up -d"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && BACKEND_IMAGE=${BACKEND_IMAGE} FRONTEND_IMAGE=${FRONTEND_IMAGE} IMAGE_TAG=${BUILD_NUMBER} docker compose -f docker-compose.yml up -d"
                     """
                 }
             }
