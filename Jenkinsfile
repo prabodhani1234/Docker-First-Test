@@ -61,6 +61,7 @@ pipeline {
         // new step for separately copy image to ubuntu side
         stage('Save Images') {
             steps {
+                bat "docker save -o mongo.tar mongo:latest"
                 bat "docker save -o backend-%BUILD_NUMBER%.tar %BACKEND_IMAGE%:%BUILD_NUMBER%"
                 bat "docker save -o frontend-%BUILD_NUMBER%.tar %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
@@ -79,6 +80,7 @@ pipeline {
        stage('Copy Images to Ubuntu') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
+                    bat "scp mongo.tar %UBUNTU_USER%@%UBUNTU_HOST%:%DEPLOY_DIR%/"
                     bat "scp backend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:${DEPLOY_DIR}/"
                     bat "scp frontend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:${DEPLOY_DIR}/"
                 }
@@ -90,12 +92,33 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                    ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker load -i ${DEPLOY_DIR}/backend-%BUILD_NUMBER%.tar && docker load -i ${DEPLOY_DIR}/frontend-%BUILD_NUMBER%.tar"
+                    ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker load -i %DEPLOY_DIR%/mongo.tar && docker load -i ${DEPLOY_DIR}/backend-%BUILD_NUMBER%.tar && docker load -i ${DEPLOY_DIR}/frontend-%BUILD_NUMBER%.tar"
                     """
                 } 
             }
         }
+
+
+        stage('Create Docker Network') {
+            steps {
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker network inspect app-network >/dev/null 2>&1 || docker network create app-network"
+                    """
+                }
+            }
+        }
         
+        stage('Run MongoDB') {
+            steps {
+                sshagent(['ubuntu-ssh-key']) {
+                    bat """
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f mongo >/dev/null 2>&1 || true; docker run -d --name mongo --network app-network --restart unless-stopped -p 27017:27017 -v mongo_data:/data/db mongo:latest"
+                    """
+                }
+            }
+        }
+
         stage('Run Containers') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
