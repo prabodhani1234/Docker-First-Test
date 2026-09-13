@@ -77,39 +77,37 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "mkdir -p ${DEPLOY_DIR}"
+                        ssh -o StrictHostKeyChecking=no %UBUNTU_USER%@%UBUNTU_HOST% "mkdir -p %DEPLOY_DIR%"
                     """
                 }
             }
         }
-
-       stage('Copy Images to Ubuntu') {
+        
+        stage('Copy Images to Ubuntu') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat "scp mongo.tar %UBUNTU_USER%@%UBUNTU_HOST%:%DEPLOY_DIR%/"
-                    bat "scp backend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:${DEPLOY_DIR}/"
-                    bat "scp frontend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:${DEPLOY_DIR}/"
+                    bat "scp backend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:%DEPLOY_DIR%/"
+                    bat "scp frontend-%BUILD_NUMBER%.tar %UBUNTU_USER%@%UBUNTU_HOST%:%DEPLOY_DIR%/"
                 }
             }
         }
-
-        //new
+        
         stage('Load Images') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                    ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker load -i %DEPLOY_DIR%/mongo.tar && docker load -i ${DEPLOY_DIR}/backend-%BUILD_NUMBER%.tar && docker load -i ${DEPLOY_DIR}/frontend-%BUILD_NUMBER%.tar"
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker load -i %DEPLOY_DIR%/mongo.tar && docker load -i %DEPLOY_DIR%/backend-%BUILD_NUMBER%.tar && docker load -i %DEPLOY_DIR%/frontend-%BUILD_NUMBER%.tar"
                     """
-                } 
+                }
             }
         }
-
-
+        
         stage('Create Docker Network') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker network inspect app-network >/dev/null 2>&1 || docker network create app-network"
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker network inspect app-network > /dev/null 2>&1 || docker network create app-network"
                     """
                 }
             }
@@ -119,19 +117,19 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f mongo >/dev/null 2>&1 || true; docker run -d --name mongo --network app-network --restart unless-stopped -p 27017:27017 -v mongo_data:/data/db mongo:latest"
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f mongo > /dev/null 2>&1 || true; docker run -d --name mongo --network app-network --restart unless-stopped -p 27017:27017 -v mongo_data:/data/db mongo:latest"
                     """
                 }
             }
         }
-
+        
         stage('Run Containers') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                    ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f first-jenkins-backend first-jenkins-client >/dev/null 2>&1; docker run -d --name first-jenkins-backend -p 5000:5000 %BACKEND_IMAGE%:%BUILD_NUMBER%; docker run -d --name first-jenkins-client -p 5173:5173 %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f first-jenkins-backend first-jenkins-client > /dev/null 2>&1 || true; docker run -d --name first-jenkins-backend --network app-network --restart unless-stopped -p 5000:5000 -e MONGODB_URI=mongodb://mongo:27017/UserDb %BACKEND_IMAGE%:%BUILD_NUMBER%; docker run -d --name first-jenkins-client --network app-network --restart unless-stopped -p 5173:5173 %FRONTEND_IMAGE%:%BUILD_NUMBER%"
                     """
-                } 
+                }
             }
         }
         //stage('Copy Compose File') {
