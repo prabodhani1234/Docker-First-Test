@@ -127,7 +127,7 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f first-jenkins-backend first-jenkins-client >/dev/null 2>&1; docker run -d --name first-jenkins-backend -p 5000:5000 %BACKEND_IMAGE%:%BUILD_NUMBER%; docker run -d --name first-jenkins-client -p 5173:5173 %FRONTEND_IMAGE%:%BUILD_NUMBER%"
+                        ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f first-jenkins-backend first-jenkins-client >/dev/null 2>&1 || true; docker run -d --name first-jenkins-backend --network app-network --restart unless-stopped -p 5000:5000 -e MONGODB_URI=mongodb://mongo:27017/UserDb %BACKEND_IMAGE%:%BUILD_NUMBER%; docker run -d --name first-jenkins-client --network app-network --restart unless-stopped -p 5173:5173 %FRONTEND_IMAGE%:%BUILD_NUMBER%"
                     """
                 }
             }
