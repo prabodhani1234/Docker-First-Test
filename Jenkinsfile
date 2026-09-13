@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-         BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
+        BACKEND_IMAGE  = "prabodhanih/first-jenkins-backend"
         FRONTEND_IMAGE = "prabodhanih/first-jenkins-client"
-        
+
+        // Used only for Jenkins BUILD
         COMPOSE_FILE = 'docker-compose.yml'
 
         UBUNTU_HOST = "192.168.8.105"
@@ -14,6 +15,7 @@ pipeline {
     }
 
     stages {
+
         stage('SCM Checkout') {
             steps {
                 retry(3) {
@@ -30,11 +32,11 @@ pipeline {
             }
         }
 
-        // stage('Build Docker Images') {
-        //     steps {
-        //         bat "docker-compose -f ${COMPOSE_FILE} build --pull"
-        //     }
-        // }
+        stage('Build Docker Images') {
+            steps {
+                bat "docker-compose -f ${COMPOSE_FILE} build --pull"
+            }
+        }
 
         stage('Show Docker Images') {
             steps {
@@ -56,7 +58,13 @@ pipeline {
 
         stage('Docker Hub Login') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins-docker-first', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'jenkins-docker-first',
+                        passwordVariable: 'DOCKER_PASSWORD',
+                        usernameVariable: 'DOCKER_USERNAME'
+                    )
+                ]) {
                     bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%'
                 }
             }
@@ -84,11 +92,11 @@ pipeline {
             }
         }
 
-       stage('Copy Compose File') {
+        stage('Copy Compose File') {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        scp -o StrictHostKeyChecking=no docker-compose.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.yml
+                        scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${UBUNTU_USER}@${UBUNTU_HOST}:${DEPLOY_DIR}/docker-compose.prod.yml
                     """
                 }
             }
@@ -99,10 +107,13 @@ pipeline {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker --version"
+
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker compose version"
 
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull ${BACKEND_IMAGE}:${BUILD_NUMBER}"
+
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull ${FRONTEND_IMAGE}:${BUILD_NUMBER}"
+
                         ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "docker pull mongo:latest"
                     """
                 }
@@ -113,7 +124,7 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && BACKEND_IMAGE=${BACKEND_IMAGE} FRONTEND_IMAGE=${FRONTEND_IMAGE} IMAGE_TAG=${BUILD_NUMBER} docker compose -f docker-compose.yml up -d"
+                        ssh -o StrictHostKeyChecking=no ${UBUNTU_USER}@${UBUNTU_HOST} "cd ${DEPLOY_DIR} && BACKEND_IMAGE=${BACKEND_IMAGE} FRONTEND_IMAGE=${FRONTEND_IMAGE} IMAGE_TAG=${BUILD_NUMBER} docker compose -f docker-compose.prod.yml up -d"
                     """
                 }
             }
@@ -134,7 +145,7 @@ pipeline {
 
         success {
             echo "Deployment completed successfully!"
-            echo "Frontend: http://${UBUNTU_HOST}:5173"
+            echo "Frontend: http://${UBUNTU_HOST}:3000"
             echo "Backend:  http://${UBUNTU_HOST}:5000"
         }
 
