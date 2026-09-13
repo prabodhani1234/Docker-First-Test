@@ -8,8 +8,7 @@ services:
       - "27017:27017"
   
   backend:
-    build: ./backend
-    image: first-jenkins-backend:latest
+    image: ${BACKEND_IMAGE}:${IMAGE_TAG}
     container_name: backend_container
     ports:
       - "5000:5000"
@@ -23,8 +22,7 @@ services:
     
 
   client:
-    build: ./client
-    image: first-jenkins-client:latest
+    image: ${FRONTEND_IMAGE}:${IMAGE_TAG}
     container_name: client_container
     ports:
       - "3000:3000"
