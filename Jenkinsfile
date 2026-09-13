@@ -61,13 +61,13 @@ pipeline {
         // new step for separately copy image to ubuntu side
         stage('Pull Mongo Image') {
             steps {
-                bat "docker pull mongo:latest"
+                bat "docker pull  mongo:8.0"
             }
         }
         
         stage('Save Images') {
             steps {
-                bat "docker save -o mongo.tar mongo:latest"
+                bat "docker save -o mongo.tar mongo:8.0"
                 bat "docker save -o backend-%BUILD_NUMBER%.tar %BACKEND_IMAGE%:%BUILD_NUMBER%"
                 bat "docker save -o frontend-%BUILD_NUMBER%.tar %FRONTEND_IMAGE%:%BUILD_NUMBER%"
             }
@@ -117,7 +117,7 @@ pipeline {
             steps {
                 sshagent(['ubuntu-ssh-key']) {
                     bat """
-                       ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f mongo >/dev/null 2>&1 || true; docker run -d --name mongo --network app-network --restart unless-stopped -p 27017:27017 -v mongo_data:/data/db mongo:latest"
+                       ssh %UBUNTU_USER%@%UBUNTU_HOST% "docker rm -f mongo >/dev/null 2>&1 || true; docker run -d --name mongo --network app-network --restart unless-stopped -p 27017:27017 -v mongo_data:/data/db mongo:8.0"
                     """
                 }
             }
