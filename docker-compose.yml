@@ -8,7 +8,8 @@ services:
       - "27017:27017"
   
   backend:
-    build:  ${BACKEND_IMAGE}:${IMAGE_TAG}
+    build: ./backend
+    image: first-jenkins-backend:latest
     container_name: backend_container
     ports:
       - "5000:5000"
@@ -16,17 +17,24 @@ services:
       - mongo
     environment:
       - MONGODB_URI=mongodb://mongo:27017/UserDb
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     
 
   client:
-    build: ${FRONTEND_IMAGE}:${IMAGE_TAG}
+    build: ./client
+    image: first-jenkins-client:latest
     container_name: client_container
     ports:
       - "3000:3000"
     depends_on:
       - backend
-    
-    
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
 
 volumes:
   mongo_data:
